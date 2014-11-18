@@ -9,6 +9,7 @@ find_package(catkin REQUIRED
 )
 
 find_package(OpenRAVE REQUIRED)
+set(OpenRAVE_BOTH_LIBRARIES ${OpenRAVE_LIBRARIES} ${OpenRAVE_CORE_LIBRARIES})
 
 
 ## System dependencies are found with CMake's conventions
@@ -81,7 +82,7 @@ find_package(OpenRAVE REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES openrave_env_generator
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
@@ -93,15 +94,24 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include)
+ include_directories(
+ 	include
+    ${OpenRAVE_INCLUDE_DIRS}
+ )
 
 ## Declare a cpp library
-# add_library(openrave_env_generator
-#   src/${PROJECT_NAME}/openrave_env_generator.cpp
-# )
+ add_library(openrave_env_generator
+ 	src/EGLoader.cpp
+ )
+target_link_libraries(openrave_env_generator ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES})
+set_target_properties(openrave_env_generator PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
 ## Declare a cpp executable
-# add_executable(openrave_env_generator_node src/openrave_env_generator_node.cpp)
+ add_executable(env_gen_demo 
+ 	src/demo.cpp
+ )
+target_link_libraries(env_gen_demo ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES} openrave_env_generator)
+set_target_properties(env_gen_demo PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
