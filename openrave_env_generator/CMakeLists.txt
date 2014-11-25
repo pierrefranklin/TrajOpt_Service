@@ -102,6 +102,7 @@ catkin_package(
 ## Declare a cpp library
  add_library(openrave_env_generator
  	src/EGLoader.cpp
+ 	src/EGTable.cpp
  )
 target_link_libraries(openrave_env_generator ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES})
 set_target_properties(openrave_env_generator PROPERTIES COMPILE_FLAGS "-std=c++0x")

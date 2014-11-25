@@ -7,6 +7,7 @@
 
 #include <openrave_env_generator/EnvironmentGenerator.h>
 #include <openrave_env_generator/EGLoader.h>
+#include <openrave_env_generator/EGTable.h>
 #include <iostream>
 
 
@@ -16,9 +17,11 @@ int main(){
 
 	OpenRAVE::RaveInitialize();
 
-	boost::shared_ptr<EnvironmentGenerator> egPtr(new EGLoader("data/lab1.env.xml"));
+	boost::shared_ptr<EnvironmentGenerator> egPtr(new EGTable(false, 10));
 
 	OpenRAVE::EnvironmentBasePtr env = egPtr->getEnvironment();
+
+	env->Add(env->ReadRobotXMLFile("atlas_description/atlas.xml"));
 
 	OpenRAVE::ViewerBasePtr viewer = OpenRAVE::RaveCreateViewer(env, "qtcoin");
 
