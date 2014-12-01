@@ -8,6 +8,7 @@
 #include <openrave_env_generator/EnvironmentGenerator.h>
 #include <openrave_env_generator/EGLoader.h>
 #include <openrave_env_generator/EGTable.h>
+#include <openrave_env_generator/EGWall.h>
 #include <iostream>
 
 
@@ -17,7 +18,7 @@ int main(){
 
 	OpenRAVE::RaveInitialize();
 
-	boost::shared_ptr<EnvironmentGenerator> egPtr(new EGTable(false, 10));
+	boost::shared_ptr<EnvironmentGenerator> egPtr(new EGWall(false));
 
 	OpenRAVE::EnvironmentBasePtr env = egPtr->getEnvironment();
 
