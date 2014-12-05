@@ -4,10 +4,20 @@ project(initial_trajectory)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED
+  cmu_walk
+  mrdplot
+  roscpp
+)
+
+find_package(cmu_walk REQUIRED)
+
+find_package(OpenRAVE REQUIRED)
+set(OpenRAVE_BOTH_LIBRARIES ${OpenRAVE_LIBRARIES} ${OpenRAVE_CORE_LIBRARIES})
+
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system thread)
 find_package(Eigen REQUIRED)
 
 
@@ -92,6 +102,8 @@ catkin_package(
  include_directories(
   include
   ${Eigen_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
+  ${OpenRAVE_INCLUDE_DIRS}
 )
 
 
@@ -99,8 +111,9 @@ catkin_package(
  add_library(initial_trajectory
    src/DimQuadraticGenerator.cpp
    src/BezierQuadraticGenerator.cpp
+   src/BezierAtlasIKDB.cpp
  )
-target_link_libraries(initial_trajectory ${Boost_LIBRARIES})
+target_link_libraries(initial_trajectory ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 set_target_properties(initial_trajectory PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
 
@@ -108,6 +121,10 @@ set_target_properties(initial_trajectory PROPERTIES COMPILE_FLAGS "-std=c++0x")
  add_executable(demo src/demo.cpp)
 target_link_libraries(demo ${Boost_LIBRARIES} initial_trajectory)
 set_target_properties(demo PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
+ add_executable(testDB src/testDB.cpp)
+target_link_libraries(testDB ${Boost_LIBRARIES}  ${OpenRAVE_BOTH_LIBRARIES} initial_trajectory)
+set_target_properties(testDB PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
 
 ## Add cmake target dependencies of the executable/library
