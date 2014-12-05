@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC    -shared -Wl,-soname,libgtest.so -o libgtest.so CMakeFiles/gtest.dir/src/gtest-all.cc.o -L/home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/gtest/src -lpthread -Wl,-rpath,/home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/gtest/src 
