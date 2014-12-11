@@ -16,9 +16,8 @@ std::vector<double> eigenToDouble(Eigen::Vector3d input){
 
 	std::vector<double> returnMe;
 
-	for(int i = 0; i < input.size(); i++){
-		returnMe.push_back(input[i]);
-	}
+	returnMe.assign(input.data(), input.data()+3);
+
 	return returnMe;
 
 }
@@ -47,15 +46,19 @@ BezierAtlasIKDB::BezierAtlasIKDB():
 	getParamCrap(ik);
 	ik_d.init();
 	BQG->num_waypoints = 15;
+
+	gridSize = 5;
+	gridScale = 0.3;
 }
 
 BezierAtlasIKDB::~BezierAtlasIKDB() {
 	// TODO Auto-generated destructor stub
 }
 
-Eigen::MatrixXf BezierAtlasIKDB::getTrajectory(int index, std::vector<double> start, Eigen::Vector3d delta){
+Eigen::MatrixXf BezierAtlasIKDB::getTrajectory(int index, std::vector<double> start, Eigen::Vector3d end){
 
 	//Set the robotstate to the start position
+	rs.fillZeros();
 	rs.joints = Eigen::Map<Vec28>(start.data());
 	rs.computeSDFvars();
 
@@ -65,7 +68,7 @@ Eigen::MatrixXf BezierAtlasIKDB::getTrajectory(int index, std::vector<double> st
 
 	//Get hand start and end
 	Eigen::Vector3d handstart = ik.ikrs->gripper[1].pose.pos;
-	Eigen::Vector3d handend = handstart+delta;
+	Eigen::Vector3d handend = rs.tfLeftFoot2sdfWorld(Pose(end,{0,0,0,1})).pos;
 	Eigen::Vector3d handmiddle = calculateMiddle(index, handstart, handend);
 
 	ik_d.handMode[1] = 1;
@@ -96,6 +99,22 @@ Eigen::MatrixXf BezierAtlasIKDB::getTrajectory(int index, std::vector<double> st
 
 }
 
+void BezierAtlasIKDB::setGridSize(int gridSize_){
+	gridSize = gridSize_;
+}
+
+void BezierAtlasIKDB::setGridScale(double gridScale_){
+	gridScale = gridScale_;
+}
+
+int BezierAtlasIKDB::getNumIndices(){
+	return gridSize*gridSize;
+}
+
+boost::shared_ptr<BezierQuadraticGenerator> BezierAtlasIKDB::getTrajGenerator(){
+	return BQG;
+}
+
 Eigen::Vector3d BezierAtlasIKDB::calculateMiddle(int index, Eigen::Vector3d start, Eigen::Vector3d end){
 
 	//Given the vector from start to end, find a plane that bisects it
@@ -103,20 +122,21 @@ Eigen::Vector3d BezierAtlasIKDB::calculateMiddle(int index, Eigen::Vector3d star
 
 	Eigen::Vector3d normal = (end-start);
 
+	//midpoint and 2 vectors define a plane
 	Eigen::Vector3d midpoint = end/2 + start/2;
 
 	Eigen::Vector3d basisX = Eigen::Vector3d::UnitZ().cross(normal).normalized();
 
 	Eigen::Vector3d basisY = normal.cross(basisX).normalized();
 
-	//The index is converted into a x y position
+	//The index is converted into a x y position on the plane
+	int x = (index%gridSize) - (gridSize/2);
+	int y = (index%gridSize) - (gridSize/2);
 
-	int x = index%5-2;
-	int y = index/5-2;
 
 	midpoint = midpoint
-			   + 0.3 * ((double) x) * basisX
-			   + 0.3 * ((double) y) * basisY;
+			   + gridScale * ((double) x) * basisX
+			   + gridScale * ((double) y) * basisY;
 
 	return midpoint;
 

@@ -1,25 +1,24 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(initial_trajectory)
+project(training_data_generator)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
-  cmu_walk
-  mrdplot
-  roscpp
+	openrave_env_generator
+	initial_trajectory
+	trajopt
+	bulbasaur
+	manip
 )
-
-find_package(cmu_walk REQUIRED)
 
 find_package(OpenRAVE REQUIRED)
 set(OpenRAVE_BOTH_LIBRARIES ${OpenRAVE_LIBRARIES} ${OpenRAVE_CORE_LIBRARIES})
 
-
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS system thread)
-find_package(Eigen REQUIRED)
+# find_package(Boost REQUIRED COMPONENTS system)
 
+find_package(PCL 1.7 REQUIRED COMPONENTS common io)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -87,10 +86,10 @@ find_package(Eigen REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-   INCLUDE_DIRS include
-   LIBRARIES initial_trajectory
+#  INCLUDE_DIRS include
+#  LIBRARIES training_data_generator
 #  CATKIN_DEPENDS other_catkin_pkg
-   DEPENDS Eigen cmu_walk mrdplot
+#  DEPENDS system_lib
 )
 
 ###########
@@ -99,40 +98,33 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
- include_directories(
+include_directories(
   include
-  ${Eigen_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
   ${OpenRAVE_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
-
 ## Declare a cpp library
- add_library(initial_trajectory
-   src/DimQuadraticGenerator.cpp
-   src/BezierQuadraticGenerator.cpp
-   src/BezierAtlasIKDB.cpp
+ add_library(trainer
+ 	src/DatabaseTrajectorySearch.cpp
  )
-target_link_libraries(initial_trajectory ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-set_target_properties(initial_trajectory PROPERTIES COMPILE_FLAGS "-std=c++0x")
-
+target_link_libraries(trainer ${OpenRAVE_BOTH_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+set_target_properties(trainer PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
 ## Declare a cpp executable
- add_executable(demo src/demo.cpp)
-target_link_libraries(demo ${Boost_LIBRARIES} initial_trajectory)
-set_target_properties(demo PROPERTIES COMPILE_FLAGS "-std=c++0x")
-
- add_executable(testDB src/testDB.cpp)
-target_link_libraries(testDB ${Boost_LIBRARIES}  ${OpenRAVE_BOTH_LIBRARIES} initial_trajectory)
-set_target_properties(testDB PROPERTIES COMPILE_FLAGS "-std=c++0x")
-
+ add_executable(testDTS 
+ 	src/testDTS.cpp
+ )
+target_link_libraries(testDTS ${OpenRAVE_BOTH_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} trainer)
+set_target_properties(testDTS PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(initial_trajectory_node initial_trajectory_generate_messages_cpp)
+# add_dependencies(training_data_generator_node training_data_generator_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(initial_trajectory_node
+# target_link_libraries(training_data_generator_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -151,7 +143,7 @@ set_target_properties(testDB PROPERTIES COMPILE_FLAGS "-std=c++0x")
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS initial_trajectory initial_trajectory_node
+# install(TARGETS training_data_generator training_data_generator_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -176,7 +168,7 @@ set_target_properties(testDB PROPERTIES COMPILE_FLAGS "-std=c++0x")
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_initial_trajectory.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_training_data_generator.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

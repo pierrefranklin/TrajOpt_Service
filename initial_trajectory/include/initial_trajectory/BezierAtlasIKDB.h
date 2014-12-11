@@ -22,6 +22,13 @@ public:
 
 	Eigen::MatrixXf getTrajectory(int index, std::vector<double> start, Eigen::Vector3d end);
 
+	void setGridSize(int gridSize_);
+	void setGridScale(double gridScale_);
+
+	int getNumIndices();
+
+	boost::shared_ptr<BezierQuadraticGenerator> getTrajGenerator();
+
 private:
 
 	boost::shared_ptr<BezierQuadraticGenerator> BQG;
@@ -32,6 +39,9 @@ private:
 	IKcmd ik_d;
 	PelvRobotState rs;
 
+	//Parameters for the Bezier Curve
+	int gridSize; //The X or Y extent of the square grid
+	double gridScale; //scaling for the grid
 
 };
 

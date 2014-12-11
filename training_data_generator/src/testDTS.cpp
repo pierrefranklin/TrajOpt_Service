@@ -1,64 +1,34 @@
 /*
- * testDB.cpp
+ * testDTS.cpp
  *
- *  Created on: Dec 4, 2014
+ *  Created on: Dec 9, 2014
  *      Author: perry
  */
 
-#include <initial_trajectory/BezierAtlasIKDB.h>
 
-#include <openrave/openrave.h>
-#include <openrave-0.9/openrave-core.h>
+#include <training_data_generator/DatabaseTrajectorySearch.h>
 
-#include <thread>
+std::vector<double> start = {0, 0, 0, 0,
+							0, 0, -0.23, 0.52, -0.275, -0.06,
+							-0.0, -0.064, -0.23, 0.52, -0.275, 0.06,
+							0.3, -1.3, 2.0, 0.5, -0,-0.0028,
+							0.3, 1.3,	2.0, -0.5, 0.5, 0.0028};
 
 using namespace TOService;
 
-std::vector<double> eigenToDouble(Eigen::VectorXf input){
-
-	std::vector<double> returnMe;
-
-	for(int i = 0; i < input.size(); i++){
-		returnMe.push_back(input[i]);
-	}
-	return returnMe;
-
-}
-
-void SetViewer(OpenRAVE::EnvironmentBasePtr penv, const std::string& viewername)
-{
-    OpenRAVE::ViewerBasePtr viewer = RaveCreateViewer(penv,viewername);
-    BOOST_ASSERT(!!viewer);
-
-    // attach it to the environment:
-    penv->AddViewer(viewer);
-
-    // finally you call the viewer's infinite loop (this is why you need a separate thread):
-    bool showgui = true;
-    viewer->main(showgui);
-
-}
-
 int main(){
 
-	std::vector<double> start = {0, 0, 0, 0,
-			0, 0, -0.23, 0.52, -0.275, -0.06,
-			-0.0, -0.064, -0.23, 0.52, -0.275, 0.06,
-			0.3, -1.3, 2.0, 0.5, -0,-0.0028,
-			0.3, 1.3,	2.0, -0.5, 0.5, 0.0028};
 
-	BezierAtlasIKDB database;
-	auto trajectory = database.getTrajectory(24,start,{.5,0,0.5});
-	std::cout << trajectory <<std::endl;
 
-	OpenRAVE::RaveInitialize();
+	boost::shared_ptr<BezierAtlasIKDB> db(new BezierAtlasIKDB);
 
+	DatabaseTrajectorySearch dts(db);
 
 	OpenRAVE::EnvironmentBasePtr env = OpenRAVE::RaveCreateEnvironment();
-
-	env->Add(env->ReadRobotXMLFile("atlas_description/atlas_foot.xml"));
+	env->Load("atlas_description/atlas_foot.xml");
 
 	OpenRAVE::RobotBasePtr robot = env->GetRobot("atlas");
+	env->StopSimulation();
 
 	std::vector<int> activejoint = {robot->GetJoint("back_bkz")->GetDOFIndex(),robot->GetJoint("back_bky")->GetDOFIndex(),
 								   robot->GetJoint("back_bkx")->GetDOFIndex(),robot->GetJoint("neck_ay")->GetDOFIndex(),
@@ -74,19 +44,19 @@ int main(){
 								   robot->GetJoint("r_arm_shy")->GetDOFIndex(),robot->GetJoint("r_arm_shx")->GetDOFIndex(),
 								   robot->GetJoint("r_arm_ely")->GetDOFIndex(),robot->GetJoint("r_arm_elx")->GetDOFIndex(),
 								   robot->GetJoint("r_arm_wry")->GetDOFIndex(),robot->GetJoint("r_arm_wrx")->GetDOFIndex()};
+	robot->SetDOFValues(start, true, activejoint);
+	robot->GetDOFValues(start,activejoint);
 
-	boost::thread thviewer(boost::bind(SetViewer,env,"qtcoin"));
+	std::cout<<dts.findBestIndex(env, {0.5,-0.5,1})<<std::endl;
+
+	std::cout<<"DONE"<<std::endl;
 
 	while(1){
-		for(int i = 0; i < trajectory.rows(); i++){
-		robot->SetDOFValues(eigenToDouble(trajectory.row(i).transpose()),1,activejoint);
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-		}
-
 	}
 
 	return 0;
 
-}
 
+
+}
 
