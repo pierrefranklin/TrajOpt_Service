@@ -39,7 +39,7 @@ void SetViewer(OpenRAVE::EnvironmentBasePtr penv, const std::string& viewername)
 
 }
 
-int main(){
+int main(int argc, char *argv[]){
 
 	std::vector<double> start = {0, 0, 0, 0,
 			0, 0, -0.23, 0.52, -0.275, -0.06,
@@ -48,7 +48,12 @@ int main(){
 			0.3, 1.3,	2.0, -0.5, 0.5, 0.0028};
 
 	BezierAtlasIKDB database;
-	auto trajectory = database.getTrajectory(24,start,{.5,0,0.5});
+	int index = 0;
+	if(argc >1 ){
+		index = std::stoi(argv[1]);
+	}
+
+	auto trajectory = database.getTrajectory(index,start, {0.5,-0.5,1});
 	std::cout << trajectory <<std::endl;
 
 	OpenRAVE::RaveInitialize();

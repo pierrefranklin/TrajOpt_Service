@@ -8,6 +8,8 @@
 
 #include <training_data_generator/DatabaseTrajectorySearch.h>
 
+#include <ros/ros.h>
+
 std::vector<double> start = {0, 0, 0, 0,
 							0, 0, -0.23, 0.52, -0.275, -0.06,
 							-0.0, -0.064, -0.23, 0.52, -0.275, 0.06,
@@ -16,9 +18,10 @@ std::vector<double> start = {0, 0, 0, 0,
 
 using namespace TOService;
 
-int main(){
+int main(int argc, char *argv[]){
 
-
+	ros::init(argc, argv, "trainer");
+	ros::NodeHandle nh;
 
 	boost::shared_ptr<BezierAtlasIKDB> db(new BezierAtlasIKDB);
 
@@ -47,7 +50,8 @@ int main(){
 	robot->SetDOFValues(start, true, activejoint);
 	robot->GetDOFValues(start,activejoint);
 
-	std::cout<<dts.findBestIndex(env, {0.5,-0.5,1})<<std::endl;
+	int x= dts.findBestIndex(env, {0.5,-0.5,1});
+	std::cout<<x<<std::endl;
 
 	std::cout<<"DONE"<<std::endl;
 

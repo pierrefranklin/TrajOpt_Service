@@ -130,7 +130,7 @@ Eigen::Vector3d BezierAtlasIKDB::calculateMiddle(int index, Eigen::Vector3d star
 	Eigen::Vector3d basisY = normal.cross(basisX).normalized();
 
 	//The index is converted into a x y position on the plane
-	int x = (index%gridSize) - (gridSize/2);
+	int x = index/gridSize - (gridSize/2);
 	int y = (index%gridSize) - (gridSize/2);
 
 

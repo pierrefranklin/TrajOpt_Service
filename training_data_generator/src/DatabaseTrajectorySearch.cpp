@@ -8,7 +8,7 @@
 #include <training_data_generator/DatabaseTrajectorySearch.h>
 #include <trajopt/problem_description.hpp>
 #include <drc_traj/atlas_utils.hpp>
-
+#include <ros/ros.h>
 
 
 namespace TOService {
@@ -16,6 +16,7 @@ namespace TOService {
 DatabaseTrajectorySearch::DatabaseTrajectorySearch(boost::shared_ptr<BezierAtlasIKDB> database_):
 	database(database_){
 	TOHak.LoadGains({1,1,1},{0,0,0});
+	TOHak.see_viewer=false;
 }
 
 DatabaseTrajectorySearch::~DatabaseTrajectorySearch() {
@@ -27,27 +28,52 @@ int DatabaseTrajectorySearch::findBestIndex(OpenRAVE::EnvironmentBaseConstPtr en
 
 	int numWaypoints = database->getTrajGenerator()->num_waypoints;
 
-	int bestIndex = 0;
+	int bestIndex = -1;
 	trajopt::TrajOptResultPtr bestResult;
+
+	ros::Duration bestTime(100.0);
 
 	std::vector<double> start_state;
 	env->GetRobot("atlas")->GetDOFValues(start_state, TOHak.Getactivejoint(TOHak.current_mode));
-
-
 
 	Eigen::Affine3d goal = Eigen::Affine3d::Identity();
 	goal.translation() = end;
 
 	for (int i = 0; i <  numIndices; i++){
+
+		TOHak.LoadGains({1,1,1},{0,0,0},{0,0.28,0.0});
+
 		std::vector<double> temp_start_state(start_state);
 		std::cout<<"On pass "<<i<<std::endl;
 
 		Eigen::MatrixXf initguess = database->getTrajectory(i, temp_start_state, end);
 
-		std::cout<<"init "<< initguess.row(0);
-		std::cout<<std::endl;
+		ros::Time begin = ros::Time::now();
 
 		trajopt::TrajOptResultPtr curResult = computeTrajectory(temp_start_state, goal, ::Side::RIGHT, initguess);
+
+		ros::Duration curTime = ros::Time::now() - begin;
+
+		if (traj_is_safe(curResult->traj, TOHak.robot)){
+			continue;
+		}
+
+		ROS_INFO_STREAM("TIME = "<<curTime);
+
+		if (!bestResult){
+			bestIndex = i;
+			bestResult = curResult;
+			bestTime = curTime;
+			std::cout<<"FIRST RESULT"<<std::endl;
+			continue;
+		}
+		else if (curTime<bestTime){
+			bestIndex = i;
+			bestResult = curResult;
+			bestTime = curTime;
+			ROS_INFO_STREAM("UPDATED "<<bestIndex);
+			continue;
+		}
 
 	}
 
@@ -89,8 +115,6 @@ trajopt::TrajOptResultPtr DatabaseTrajectorySearch::computeTrajectory(std::vecto
 		}
 	}
 	TOHak.request_traj = whole_trajectory;
-	std::cout<<"wholetraj "<< whole_trajectory.row(0);
-	std::cout<<std::endl;
 
 	std::cout<< "Number of rows: " << TOHak.request_traj.rows() << "Number of col: " << TOHak.request_traj.cols() <<std::endl;
 
@@ -125,11 +149,6 @@ trajopt::TrajOptResultPtr DatabaseTrajectorySearch::computeTrajectory(std::vecto
 		TOHak.viewer->UpdateSceneData();
 		TOHak.viewer->Draw();
 	}
-
-	std::cout << "Got here" << std::endl;
-
-	std::cout<<whole_trajectory.row(0);
-	std::cout<<std::endl;
 
 	trajopt::TrajOptProbPtr prob = trajopt::ConstructProblem(root, TOHak.env);
 

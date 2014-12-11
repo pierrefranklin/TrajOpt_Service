@@ -10,6 +10,7 @@ find_package(catkin REQUIRED
 	trajopt
 	bulbasaur
 	manip
+	roscpp
 )
 
 find_package(OpenRAVE REQUIRED)
