@@ -115,6 +115,12 @@ set_target_properties(openrave_env_generator PROPERTIES COMPILE_FLAGS "-std=c++0
 target_link_libraries(env_gen_demo ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES} openrave_env_generator)
 set_target_properties(env_gen_demo PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
+ add_executable(env_gen_demo_laser
+ 	src/demo_laser.cpp
+ )
+target_link_libraries(env_gen_demo_laser ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES} openrave_env_generator)
+set_target_properties(env_gen_demo_laser PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(openrave_env_generator_node openrave_env_generator_generate_messages_cpp)
