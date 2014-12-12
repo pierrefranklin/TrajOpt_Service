@@ -50,12 +50,12 @@ int main(int argc, char *argv[]){
 	robot->SetDOFValues(start, true, activejoint);
 	robot->GetDOFValues(start,activejoint);
 
-	int x= dts.findBestIndex(env, {0.5,-0.5,1});
+	int x= dts.findBestIndex(env, {.75,-0.5,0.7});
 	std::cout<<x<<std::endl;
 
 	std::cout<<"DONE"<<std::endl;
 
-	while(1){
+	while(ros::ok()){
 	}
 
 	return 0;

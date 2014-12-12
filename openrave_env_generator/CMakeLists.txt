@@ -83,7 +83,7 @@ set(OpenRAVE_BOTH_LIBRARIES ${OpenRAVE_LIBRARIES} ${OpenRAVE_CORE_LIBRARIES})
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES openrave_env_generator
+  LIBRARIES openrave_env_generator
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
