@@ -24,6 +24,7 @@ DatabaseTrajectorySearch::~DatabaseTrajectorySearch() {
 }
 
 int DatabaseTrajectorySearch::findBestIndex(OpenRAVE::EnvironmentBasePtr env, Eigen::Vector3d end){
+
 	int numIndices = database->getNumIndices();
 
 	int numWaypoints = database->getTrajGenerator()->num_waypoints;
@@ -36,7 +37,9 @@ int DatabaseTrajectorySearch::findBestIndex(OpenRAVE::EnvironmentBasePtr env, Ei
 	std::vector<double> start_state;
 	env->GetRobot("atlas")->GetDOFValues(start_state, TOHak.Getactivejoint(TOHak.current_mode));
 
+	TOHak.env->Destroy();
 	TOHak.env = env;
+	TOHak.robot = TOHak.env->GetRobot("atlas");
 
 	Eigen::Affine3d goal = Eigen::Affine3d::Identity();
 	goal.translation() = end;
@@ -68,7 +71,6 @@ int DatabaseTrajectorySearch::findBestIndex(OpenRAVE::EnvironmentBasePtr env, Ei
 			bestIndex = i;
 			bestResult = curResult;
 			bestTime = curTime;
-			std::cout<<"FIRST RESULT"<<std::endl;
 			continue;
 		}
 		else if (curTime<bestTime){
@@ -88,10 +90,6 @@ int DatabaseTrajectorySearch::findBestIndex(OpenRAVE::EnvironmentBasePtr env, Ei
 trajopt::TrajOptResultPtr DatabaseTrajectorySearch::computeTrajectory(std::vector<double> start_state,  Eigen::Affine3d hand, ::Side side, Eigen::MatrixXf initguess){
 	std::cout << "Computing trajectory" << std::endl;
 
-	for(auto element: start_state){
-		std::cout<<element<<" ";
-	}
-	std::cout<<std::endl;
 	OpenRAVE::EnvironmentMutex::scoped_lock lockenv(TOHak.env->GetMutex());
 	//Handle viewer:
 	if(TOHak.see_viewer) TOHak.viewer = OSGViewer::GetOrCreate(TOHak.env);
@@ -102,10 +100,7 @@ trajopt::TrajOptResultPtr DatabaseTrajectorySearch::computeTrajectory(std::vecto
 	int current_active_dof = TOHak.robot->GetActiveDOF();
 
 	UpdateStateForRequest(start_state, hand, side, TOHak.current_mode);
-	for(auto element: start_state){
-		std::cout<<element<<" ";
-	}
-	std::cout<<std::endl;
+
 	if(TOHak.multi_init_guess && TOHak.viewer)TOHak.ClearViewer();
 
 	std::stringstream request;
@@ -125,11 +120,6 @@ trajopt::TrajOptResultPtr DatabaseTrajectorySearch::computeTrajectory(std::vecto
 	std::vector<double> anothertemp;
 	TOHak.robot->GetDOFValues(anothertemp);
 
-	for(auto element: anothertemp){
-		std::cout<<element<<" ";
-	}
-	std::cout<<std::endl;
-
 	for(int row = 1; row < initguess.rows(); row++){
 		for(int col = 0; col<initguess.cols();col++){
 			whole_trajectory(row,activejoint[col]) = initguess(row,col);
@@ -138,8 +128,6 @@ trajopt::TrajOptResultPtr DatabaseTrajectorySearch::computeTrajectory(std::vecto
 	TOHak.request_traj = whole_trajectory;
 
 	std::cout<< "Number of rows: " << TOHak.request_traj.rows() << "Number of col: " << TOHak.request_traj.cols() <<std::endl;
-
-	std::cout<< whole_trajectory<<std::endl;
 
 	TOHak.ComposeRequest(request, TOHak.current_mode);
 
@@ -180,7 +168,7 @@ trajopt::TrajOptResultPtr DatabaseTrajectorySearch::computeTrajectory(std::vecto
 
 	std::cout<< "Number of collisions: " << not_safe <<std::endl;
 
-	TOHak.PrintTraj(traj,activejoint);
+//	TOHak.PrintTraj(traj,activejoint);
 
 	if(TOHak.see_viewer){
 		TOHak.ShowTraj(traj);
@@ -200,21 +188,10 @@ void DatabaseTrajectorySearch::UpdateStateForRequest(std::vector<double>& start_
 	std::vector<double> anothertemp;
 	TOHak.robot->GetDOFValues(anothertemp);
 
-	std::cout<<"should be 0s"<<std::endl;
-	for(auto element: anothertemp){
-		std::cout<<element<<" ";
-	}
-	std::cout<<std::endl;
-
 	TOHak.robot->SetDOFValues(start_state, 1, activejoint);
 	TOHak.robot->GetDOFValues(start_state,activejoint);
 
 	int current_active_dof = TOHak.robot->GetDOF();
-
-	for(auto element: anothertemp){
-		std::cout<<element<<" ";
-	}
-	std::cout<<std::endl;
 
 
 	TOHak.robot->SetActiveDOFs(vector_arange(current_active_dof));

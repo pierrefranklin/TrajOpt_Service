@@ -8,8 +8,15 @@
 #include <openrave_env_generator/EGTable.h>
 #include <random>
 #include <iostream>
+#include <ctime>
 
 namespace TOService {
+
+std::default_random_engine seedwithtime(){
+	std::default_random_engine rgen;
+	rgen.seed(time(0));
+	return rgen;
+}
 
 EGTable::EGTable(bool defaultTable_, int objects_):
 	defaultTable(defaultTable_),
@@ -34,7 +41,8 @@ void EGTable::generateEnvironment(){
 	OpenRAVE::KinBodyPtr table = OpenRAVE::RaveCreateKinBody(env);
 
 	table->SetName("table");
-	static std::default_random_engine rgen;
+	static std::default_random_engine rgen = seedwithtime();
+
     std::uniform_real_distribution<double> size(0.01,0.35);
     std::uniform_real_distribution<double> loc(-0.5,0.5);
 

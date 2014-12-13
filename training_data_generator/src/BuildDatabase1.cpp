@@ -29,15 +29,13 @@ int main(int argc, char *argv[]){
 
 	boost::shared_ptr<BezierAtlasIKDB> db(new BezierAtlasIKDB);
 
-	DatabaseTrajectorySearch dts(db);
-	EGWall envGenerafdstor(false);
-
 	std::string folder_path = ros::package::getPath("training_data_generator") + "/test_envs/";
 
 	int currentIndex = 0;
 
 	for( int numEnv = 0; numEnv < 1000; numEnv++){
 
+		DatabaseTrajectorySearch dts(db);
 		if (!ros::ok()){
 			break;
 		}
@@ -95,6 +93,10 @@ int main(int argc, char *argv[]){
 
 			currentIndex++;
 		}
+
+		env->GetRobot("atlas")->Destroy();
+
+		env->Destroy();
 
 	}
 

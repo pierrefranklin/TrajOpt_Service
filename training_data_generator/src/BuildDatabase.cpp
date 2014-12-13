@@ -10,9 +10,10 @@
 #include <openrave_env_generator/EGTable.h>
 #include <cstdlib>
 #include <iostream>
-#include <ctime>
 #include <ros/ros.h>
 #include <ros/package.h>
+#include <mutex>
+#include <thread>
 
 std::vector<double> start = {0, 0, 0, 0,
 							0, 0, -0.23, 0.52, -0.275, -0.06,
@@ -20,24 +21,20 @@ std::vector<double> start = {0, 0, 0, 0,
 							0.3, -1.3, 2.0, 0.5, -0,-0.0028,
 							0.3, 1.3,	2.0, -0.5, 0.5, 0.0028};
 
+std::mutex fileMutex;
+long currentIndex = 0;
+
 using namespace TOService;
 
-int main(int argc, char *argv[]){
-
-	ros::init(argc, argv, "databaseMaker");
-	ros::NodeHandle nh;
+void RunTrainer(){
 
 	boost::shared_ptr<BezierAtlasIKDB> db(new BezierAtlasIKDB);
 
-	DatabaseTrajectorySearch dts(db);
-	EGTable envGenerafdstor(false,4);
-
 	std::string folder_path = ros::package::getPath("training_data_generator") + "/test_envs/";
 
-	int currentIndex = 0;
+	for( int numEnv = 0; numEnv < 2000 ; numEnv++){
 
-	for( int numEnv = 0; numEnv < 1000; numEnv++){
-
+		DatabaseTrajectorySearch dts(db);
 		if (!ros::ok()){
 			break;
 		}
@@ -75,6 +72,7 @@ int main(int argc, char *argv[]){
 		std::cout<<x<<", current envNum is "<<numEnv<<std::endl;
 
 		if( x != -1){
+			fileMutex.lock();
 			std::stringstream envfilename;
 			envfilename << std::setfill('0') << std::setw(5) << currentIndex << "t.zae";
 			env->Save(folder_path + envfilename.str(), OpenRAVE::EnvironmentBase::SelectionOptions::SO_NoRobots);
@@ -86,7 +84,7 @@ int main(int argc, char *argv[]){
 			filestream.open(folder_path + resultfilename.str(), std::ofstream::out | std::ofstream::app);
 			if(!filestream.is_open()){
 				std::cout<<"Failed to open file '"<<resultfilename<<"'"<<std::endl;
-				return 0;
+				exit(-1);
 			}
 			//writeHeader(filestream);
 			filestream << x <<std::endl;
@@ -94,15 +92,34 @@ int main(int argc, char *argv[]){
 
 
 			currentIndex++;
+			fileMutex.unlock();
 		}
 
+		env->GetRobot("atlas")->Destroy();
+		env->Destroy();
 	}
 
 	std::cout<<"DONE"<<std::endl;
 
+
+
+}
+
+int main(int argc, char *argv[]){
+
+	ros::init(argc, argv, "databaseMaker");
+	ros::NodeHandle nh;
+	std::thread t1(RunTrainer);
+	std::this_thread::sleep_for(std::chrono::milliseconds( 2000 ));
+	std::thread t2(RunTrainer);
+	std::this_thread::sleep_for(std::chrono::milliseconds( 3000 ));
+	std::thread t3(RunTrainer);
+
+	t1.join();
+	t2.join();
+	t3.join();
+
 	return 0;
-
-
 
 }
 
