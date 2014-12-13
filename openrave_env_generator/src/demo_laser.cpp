@@ -1,8 +1,8 @@
 /*
- * demo.cpp
+ * demo_laser.cpp
  *
  *  Created on: Nov 18, 2014
- *      Author: perry
+ *      Author: Peng
  */
 
 #include <openrave_env_generator/EnvironmentGenerator.h>
@@ -11,6 +11,8 @@
 #include <openrave_env_generator/EGWall.h>
 #include <openrave/sensor.h>
 #include <iostream>
+#include <openrave-core.h>
+#include <vector>
 
 
 using namespace TOService;
@@ -23,18 +25,16 @@ int main(){
 
 	OpenRAVE::EnvironmentBasePtr env = egPtr->getEnvironment();
 
-	env->Add(env->ReadRobotXMLFile("atlas_description/atlas_foot_service.xml"));
+	env->Add(env->ReadRobotXMLFile("atlas_description/atlas_head_laser.xml"));
 
-	std::vector<boost::shared_ptr<OpenRAVE::RobotBase> > robots;
+	// get all the sensors, this includes all attached robot sensors
+	std::vector <OpenRAVE::SensorBasePtr> sensors;
+	env->GetSensors(sensors);
 
-	OpenRAVE::EnvironmentBase::GetRobots(robots, 30);
+	sensors[0]->Configure(OpenRAVE::SensorBase::CC_PowerOn);
+	sensors[0]->Configure(OpenRAVE::SensorBase::CC_RenderDataOn);
 
-	std::vector<OpenRAVE::RobotBase::AttachedSensorPtr> laser = robot[0]->GetAttachedSensors();
-
-	laser[0]->Configure(OpenRAVE::SensorBase::ConfigureCommand::CC_PowerOn);
-
-	laser[0]->Configure(OpenRAVE::SensorBase::ConfigureCommand::CC_RenderDataOn);
-
+//	boost::this_thread::sleep(boost::posix_time::seconds(5));
 
 	OpenRAVE::ViewerBasePtr viewer = OpenRAVE::RaveCreateViewer(env, "qtcoin");
 
