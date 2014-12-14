@@ -88,6 +88,7 @@ int main(){
 	// while(1){
 	// 	viewer->main();
 	// }
+	std::cout << "Saving Finished\n";
 
 	return 0;
 
