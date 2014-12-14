@@ -13,13 +13,15 @@
 #include <iostream>
 #include <openrave-core.h>
 #include <vector>
+#include <fstream>
+
 
 
 using namespace TOService;
 
 int main(){
 
-	boost::shared_ptr <SensorBase::LaserSensorData> pdata;
+	boost::shared_ptr <OpenRAVE::SensorBase::LaserSensorData> pdata(new OpenRAVE::SensorBase::LaserSensorData);
 
 	OpenRAVE::RaveInitialize();
 
@@ -27,7 +29,11 @@ int main(){
 
 	OpenRAVE::EnvironmentBasePtr env = egPtr->getEnvironment();
 
+	env->Save("/home/peng/pcd_data/testSaveEnv.xml");
+
 	env->Add(env->ReadRobotXMLFile("atlas_description/atlas_head_laser.xml"));
+
+
 
 	// get all the sensors, this includes all attached robot sensors
 	std::vector <OpenRAVE::SensorBasePtr> sensors;
@@ -36,9 +42,39 @@ int main(){
 	sensors[0]->Configure(OpenRAVE::SensorBase::CC_PowerOn);
 	sensors[0]->Configure(OpenRAVE::SensorBase::CC_RenderDataOn);
 
-	sensors[0]->GetSensorData(pdata);
+	std::ofstream outputFile;
+	outputFile.open("/home/peng/pcd_data/ScanedEnv.txt");
 
-	std::cout << pdata.positons << '\n';
+	for (int kk = 0; kk < 100; ++kk)
+	{
+		std::cout << kk << '\n';
+		sensors[0]->SimulationStep(0.01);
+		sensors[0]->GetSensorData(pdata);
+		//std::cout << pdata->positions[kk];
+		std::cout<<" Size =  "<<pdata->intensity.size()<<std::endl;
+		std::cout<<" Size =  "<<pdata->ranges.size()<<std::endl;
+//		std::cin.get();
+//		for (int ii = 0; ii < pdata->positions.size(); ++ii)
+//		{
+//			std::cout << pdata->positions[ii] << '\n';
+//		}
+		for (int ii = 0; ii < pdata->ranges.size(); ++ii)
+		{
+//			outputFile << pdata->ranges[ii] << ' ';
+
+			outputFile << pdata->intensity[ii] << '\n';
+		}
+
+
+
+		//std::cin>>a;
+
+	}
+
+	outputFile.close();
+	std::cout << "Done!\n";
+
+
 
 
 //	boost::this_thread::sleep(boost::posix_time::seconds(5));
