@@ -19,6 +19,8 @@ using namespace TOService;
 
 int main(){
 
+	boost::shared_ptr <SensorBase::LaserSensorData> pdata;
+
 	OpenRAVE::RaveInitialize();
 
 	boost::shared_ptr<EnvironmentGenerator> egPtr(new EGWall(false));
@@ -33,6 +35,11 @@ int main(){
 
 	sensors[0]->Configure(OpenRAVE::SensorBase::CC_PowerOn);
 	sensors[0]->Configure(OpenRAVE::SensorBase::CC_RenderDataOn);
+
+	sensors[0]->GetSensorData(pdata);
+
+	std::cout << pdata.positons << '\n';
+
 
 //	boost::this_thread::sleep(boost::posix_time::seconds(5));
 
