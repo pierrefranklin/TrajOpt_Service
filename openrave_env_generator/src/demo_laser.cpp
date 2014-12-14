@@ -32,7 +32,7 @@ int main(){
 	sensors[0]->Configure(OpenRAVE::SensorBase::CC_RenderDataOn);
 
 	std::ofstream outputFile;
-	outputFile.open("~/pcd_data/ScanedEnv.txt");
+	outputFile.open("/home/peng/ScanedEnv.txt", std::ios::in | std::ios::app);
 
 //	for (int kk = 0; kk < 100; ++kk)
 		for (int kk = 0; kk < 100; ++kk)
@@ -50,7 +50,7 @@ int main(){
 //			outputFile << std::sqrt(pdata->ranges[ii][0]^2 + pdata->ranges[ii][1]^2 + pdata->ranges[ii][2]^2) << ' ';
 			outputFile << TOService::distance(x_center,y_center,z_center, pdata->ranges[ii][0],pdata->ranges[ii][1],pdata->ranges[ii][2])<< ' ';
 
-			outputFile << pdata->intensity[ii] << '\n';
+			outputFile << pdata->intensity[ii] << ' ';
 		}
 
 
@@ -59,9 +59,10 @@ int main(){
 
 	}
 
+	outputFile << "\n";
 	outputFile.close();
-	std::cout << "Done!\n";
 
+	std::cout << "One Environment scaned and saved! \n";
 
 
 
