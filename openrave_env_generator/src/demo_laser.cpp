@@ -5,12 +5,11 @@
  *      Author: Peng
  */
 
-#include <openrave_env_generator/demo_laser.h>
+#include <openrave_env_generator/SaveLaserData.h>
 using namespace TOService;
 
 int main(){
 
-	boost::shared_ptr <OpenRAVE::SensorBase::LaserSensorData> pdata(new OpenRAVE::SensorBase::LaserSensorData);
 
 	OpenRAVE::RaveInitialize();
 
@@ -22,51 +21,20 @@ int main(){
 
 	env->Add(env->ReadRobotXMLFile("atlas_description/atlas_head_laser.xml"));
 
+	/* This is how to save sensor data, now only support a single laser sensor
+	 * In order to have the data store correctly, please change the user name in path "/home/peng/ScanedEnv.txt"
+	 * in file "SaveLaserData.cpp" .
+	 *
+	 * Data form:
+	 * each environment will be save as 100 points with (double distance, int hit) in one line of the file;
+	 * each run of the mdata.save() will attach one line in ScanedEnv.txt
+	 */
 
-
-	// get all the sensors, this includes all attached robot sensors
 	std::vector <OpenRAVE::SensorBasePtr> sensors;
 	env->GetSensors(sensors);
+	TOService::SaveLaserData mdata(sensors);
+	mdata.save();
 
-	sensors[0]->Configure(OpenRAVE::SensorBase::CC_PowerOn);
-	sensors[0]->Configure(OpenRAVE::SensorBase::CC_RenderDataOn);
-
-	std::ofstream outputFile;
-	outputFile.open("/home/peng/ScanedEnv.txt", std::ios::in | std::ios::app);
-
-//	for (int kk = 0; kk < 100; ++kk)
-		for (int kk = 0; kk < 100; ++kk)
-	{
-		std::cout << kk << '\n';
-		sensors[0]->SimulationStep(0.1);
-		sensors[0]->GetSensorData(pdata);
-		double x_center = pdata->positions[0][0];
-		double y_center = pdata->positions[0][1];
-		double z_center = pdata->positions[0][2];
-
-
-		for (int ii = 0; ii < pdata->ranges.size(); ++ii)
-		{
-//			outputFile << std::sqrt(pdata->ranges[ii][0]^2 + pdata->ranges[ii][1]^2 + pdata->ranges[ii][2]^2) << ' ';
-			outputFile << TOService::distance(x_center,y_center,z_center, pdata->ranges[ii][0],pdata->ranges[ii][1],pdata->ranges[ii][2])<< ' ';
-
-			outputFile << pdata->intensity[ii] << ' ';
-		}
-
-
-
-		//std::cin>>a;
-
-	}
-
-	outputFile << "\n";
-	outputFile.close();
-
-	std::cout << "One Environment scaned and saved! \n";
-
-
-
-//	boost::this_thread::sleep(boost::posix_time::seconds(5));
 
 	OpenRAVE::ViewerBasePtr viewer = OpenRAVE::RaveCreateViewer(env, "qtcoin");
 

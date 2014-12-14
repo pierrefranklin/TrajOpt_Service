@@ -35,14 +35,9 @@ namespace TOService {
             double z_center = pdata->positions[0][2];
 
             for (int ii = 0; ii < pdata->ranges.size(); ++ii) {
-                outputFile << TOService::distance(x_center, y_center, z_center, pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
+                outputFile << distance(x_center, y_center, z_center, pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
                 outputFile << pdata->intensity[ii] << ' ';
             }
-
-
-
-            //std::cin>>a;
-
         }
 
         outputFile << "\n";

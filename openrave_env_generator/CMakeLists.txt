@@ -106,6 +106,7 @@ catkin_package(
  	src/EGLoader.cpp
  	src/EGTable.cpp
  	src/EGWall.cpp
+ 	src/SaveLaserData.cpp
  )
 target_link_libraries(openrave_env_generator ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES})
 set_target_properties(openrave_env_generator PROPERTIES COMPILE_FLAGS "-std=c++0x")
