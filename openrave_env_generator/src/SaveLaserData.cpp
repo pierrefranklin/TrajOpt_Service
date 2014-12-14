@@ -16,6 +16,7 @@ namespace TOService {
     int SaveLaserData::save() {
 
         int static count = 0;
+        int fIndex = 0;
         ++count;
 
         boost::shared_ptr <OpenRAVE::SensorBase::LaserSensorData> pdata(new OpenRAVE::SensorBase::LaserSensorData);
@@ -27,17 +28,15 @@ namespace TOService {
         outputFile.open("/home/peng/ScanedEnv.txt", std::ios::in | std::ios::app);
 
         for (int kk = 0; kk < 100; ++kk) {
-            std::cout << kk << '\n';
+            std::cout << "step: " << kk << '\n';
             sensors[0]->SimulationStep(0.1);
             sensors[0]->GetSensorData(pdata);
-            double x_center = pdata->positions[0][0];
-            double y_center = pdata->positions[0][1];
-            double z_center = pdata->positions[0][2];
 
             for (int ii = 0; ii < pdata->ranges.size(); ++ii) {
-                outputFile << distance(x_center, y_center, z_center, pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
-                outputFile << pdata->intensity[ii] << ' ';
-            }
+                outputFile << ++fIndex << ':' << distance(pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
+                outputFile << ++fIndex << ':' << pdata->intensity[ii] << ' ';
+             }
+            
         }
 
         outputFile << "\n";
