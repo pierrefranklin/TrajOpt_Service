@@ -5,18 +5,7 @@
  *      Author: Peng
  */
 
-#include <openrave_env_generator/EnvironmentGenerator.h>
-#include <openrave_env_generator/EGLoader.h>
-#include <openrave_env_generator/EGTable.h>
-#include <openrave_env_generator/EGWall.h>
-#include <openrave/sensor.h>
-#include <iostream>
-#include <openrave-core.h>
-#include <vector>
-#include <fstream>
-
-
-
+#include <openrave_env_generator/demo_laser.h>
 using namespace TOService;
 
 int main(){
@@ -29,7 +18,7 @@ int main(){
 
 	OpenRAVE::EnvironmentBasePtr env = egPtr->getEnvironment();
 
-	env->Save("/home/peng/pcd_data/testSaveEnv.xml");
+//	env->Save("/home/peng/pcd_data/testSaveEnv.xml");
 
 	env->Add(env->ReadRobotXMLFile("atlas_description/atlas_head_laser.xml"));
 
@@ -43,24 +32,23 @@ int main(){
 	sensors[0]->Configure(OpenRAVE::SensorBase::CC_RenderDataOn);
 
 	std::ofstream outputFile;
-	outputFile.open("/home/peng/pcd_data/ScanedEnv.txt");
+	outputFile.open("~/pcd_data/ScanedEnv.txt");
 
-	for (int kk = 0; kk < 100; ++kk)
+//	for (int kk = 0; kk < 100; ++kk)
+		for (int kk = 0; kk < 100; ++kk)
 	{
 		std::cout << kk << '\n';
-		sensors[0]->SimulationStep(0.01);
+		sensors[0]->SimulationStep(0.1);
 		sensors[0]->GetSensorData(pdata);
-		//std::cout << pdata->positions[kk];
-		std::cout<<" Size =  "<<pdata->intensity.size()<<std::endl;
-		std::cout<<" Size =  "<<pdata->ranges.size()<<std::endl;
-//		std::cin.get();
-//		for (int ii = 0; ii < pdata->positions.size(); ++ii)
-//		{
-//			std::cout << pdata->positions[ii] << '\n';
-//		}
+		double x_center = pdata->positions[0][0];
+		double y_center = pdata->positions[0][1];
+		double z_center = pdata->positions[0][2];
+
+
 		for (int ii = 0; ii < pdata->ranges.size(); ++ii)
 		{
-//			outputFile << pdata->ranges[ii] << ' ';
+//			outputFile << std::sqrt(pdata->ranges[ii][0]^2 + pdata->ranges[ii][1]^2 + pdata->ranges[ii][2]^2) << ' ';
+			outputFile << TOService::distance(x_center,y_center,z_center, pdata->ranges[ii][0],pdata->ranges[ii][1],pdata->ranges[ii][2])<< ' ';
 
 			outputFile << pdata->intensity[ii] << '\n';
 		}
