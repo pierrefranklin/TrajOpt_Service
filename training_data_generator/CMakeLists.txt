@@ -1,20 +1,25 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(openrave_env_generator)
+project(training_data_generator)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
-  trajopt
+	openrave_env_generator
+	initial_trajectory
+	trajopt
+	bulbasaur
+	manip
+	roscpp
 )
 
 find_package(OpenRAVE REQUIRED)
 set(OpenRAVE_BOTH_LIBRARIES ${OpenRAVE_LIBRARIES} ${OpenRAVE_CORE_LIBRARIES})
 
-
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
+find_package(PCL 1.7 REQUIRED COMPONENTS common io)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -82,8 +87,8 @@ set(OpenRAVE_BOTH_LIBRARIES ${OpenRAVE_LIBRARIES} ${OpenRAVE_CORE_LIBRARIES})
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES openrave_env_generator
+#  INCLUDE_DIRS include
+#  LIBRARIES training_data_generator
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
@@ -94,33 +99,46 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
- include_directories(
- 	include
-    ${OpenRAVE_INCLUDE_DIRS}
- )
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${OpenRAVE_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+)
 
 ## Declare a cpp library
- add_library(openrave_env_generator
- 	src/EGLoader.cpp
- 	src/EGTable.cpp
- 	src/EGWall.cpp
+ add_library(trainer
+ 	src/DatabaseTrajectorySearch.cpp
  )
-target_link_libraries(openrave_env_generator ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES})
-set_target_properties(openrave_env_generator PROPERTIES COMPILE_FLAGS "-std=c++0x")
+target_link_libraries(trainer ${OpenRAVE_BOTH_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+set_target_properties(trainer PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
 ## Declare a cpp executable
- add_executable(env_gen_demo 
- 	src/demo.cpp
+ add_executable(testDTS 
+ 	src/testDTS.cpp
  )
-target_link_libraries(env_gen_demo ${OpenRAVE_BOTH_LIBRARIES} ${Boost_LIBRARIES} openrave_env_generator)
-set_target_properties(env_gen_demo PROPERTIES COMPILE_FLAGS "-std=c++0x")
+target_link_libraries(testDTS ${OpenRAVE_BOTH_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} trainer)
+set_target_properties(testDTS PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
+ add_executable(BuildDatabase 
+ 	src/BuildDatabase.cpp
+ )
+target_link_libraries(BuildDatabase ${OpenRAVE_BOTH_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} trainer)
+set_target_properties(BuildDatabase PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
+ add_executable(BuildDatabase1 
+ 	src/BuildDatabase1.cpp
+ )
+target_link_libraries(BuildDatabase1 ${OpenRAVE_BOTH_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} trainer)
+set_target_properties(BuildDatabase1 PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(openrave_env_generator_node openrave_env_generator_generate_messages_cpp)
+# add_dependencies(training_data_generator_node training_data_generator_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(openrave_env_generator_node
+# target_link_libraries(training_data_generator_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -139,7 +157,7 @@ set_target_properties(env_gen_demo PROPERTIES COMPILE_FLAGS "-std=c++0x")
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS openrave_env_generator openrave_env_generator_node
+# install(TARGETS training_data_generator training_data_generator_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -164,7 +182,7 @@ set_target_properties(env_gen_demo PROPERTIES COMPILE_FLAGS "-std=c++0x")
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_openrave_env_generator.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_training_data_generator.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

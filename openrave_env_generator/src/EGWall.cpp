@@ -35,15 +35,15 @@ void EGWall::generateEnvironment(){
 
 	wall->SetName("wall");
 
-	std::default_random_engine rgen;
-    std::uniform_real_distribution<double> loc(-0.5,0.5);
+	static std::default_random_engine rgen;
+    std::uniform_real_distribution<double> loc(-0.2,0.2);
     std::uniform_real_distribution<double> rot(-0.1,0.1);
 
 	wall->InitFromGeometries(geoms);
 	if(defaultLocation){
-		wall->SetTransform(OpenRAVE::Transform(OpenRAVE::Vector(0,0,0,1), OpenRAVE::Vector(0.5,0,0,0)));
+		wall->SetTransform(OpenRAVE::Transform(OpenRAVE::Vector(0,0,0,1), OpenRAVE::Vector(0.75,0,1.5,0)));
 	} else	{
-		wall->SetTransform(OpenRAVE::Transform(OpenRAVE::Vector(rot(rgen),rot(rgen),rot(rgen),1).normalize4(), OpenRAVE::Vector(loc(rgen)+0.75,loc(rgen),loc(rgen),0)));
+		wall->SetTransform(OpenRAVE::Transform(OpenRAVE::Vector(rot(rgen),rot(rgen),rot(rgen),1).normalize4(), OpenRAVE::Vector(loc(rgen)+0.75,loc(rgen)-0.4,1.5+loc(rgen),0)));
 		std::cout<<"Randomized"<<std::endl;
 	}
 	env->Add(wall,true);
