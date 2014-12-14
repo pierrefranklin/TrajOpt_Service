@@ -33,10 +33,9 @@ namespace TOService {
 
     class SaveLaserData {
     public:
-        SaveLaserData(std::vector <OpenRAVE::SensorBasePtr> sensors);
+        SaveLaserData();
 
-        ~SaveLaserData() {
-        }
+        ~SaveLaserData();
 
         inline double distance(double x1, double y1, double z1) {
             double x = x1;
@@ -50,7 +49,9 @@ namespace TOService {
             return dist;
         }
 
-        int save();
+        void getSensors(std::vector <OpenRAVE::SensorBasePtr> sensors);
+
+        int save(char tj_result);
 
     private:
         std::vector <OpenRAVE::SensorBasePtr> sensors;
