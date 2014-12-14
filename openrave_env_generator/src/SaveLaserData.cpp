@@ -17,7 +17,7 @@ namespace TOService {
         this->sensors = sensors;
     }
 
-    int SaveLaserData::save(char tj_result) {
+    int SaveLaserData::save(int tj_result) {
 
         int static count = 0;
         int fIndex = 0;
@@ -33,15 +33,14 @@ namespace TOService {
 
         std::ofstream outputFile;
         outputFile.open("/home/peng/ScanedEnv.txt", std::ios::in | std::ios::app);
-
+        
+        outputFile << tj_result << ' ';
         for (int kk = 0; kk < 100; ++kk) {
             sensors[0]->SimulationStep(0.1);
             sensors[0]->GetSensorData(pdata);
-            outputFile << tj_result << ' ';
             for (int ii = 0; ii < pdata->ranges.size(); ++ii) {
-
                 outputFile << ++fIndex << ':' << distance(pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
-                outputFile << ++fIndex << ':' << pdata->intensity[ii] << ' ';
+                // outputFile << ++fIndex << ':' << pdata->intensity[ii] << ' ';
              }
             
         }

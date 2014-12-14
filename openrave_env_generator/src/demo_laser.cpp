@@ -22,7 +22,7 @@ int main(){
 
 	EGTable envGenerator(false,2);
 
-	char tj_result;
+	char tj_result[256];
 
 	std::vector <OpenRAVE::SensorBasePtr> sensors;
 	TOService::SaveLaserData mdata;
@@ -50,7 +50,7 @@ int main(){
 				exit(-1);
 			}
 			
-			filestream.get(tj_result);
+			filestream.getline(tj_result, 256);
 
 			filestream.close();
 			currentIndex++;
@@ -65,19 +65,13 @@ int main(){
 
 		env->GetSensors(sensors);
 		mdata.getSensors(sensors);
-		mdata.save(tj_result);
+		mdata.save(std::stoi(tj_result));
 
 
 
 		env->GetRobot("atlas")->Destroy();
 		env->Destroy();
 	}
-
-
-
-
-
-	
 
 	// OpenRAVE::ViewerBasePtr viewer = OpenRAVE::RaveCreateViewer(env, "qtcoin");
 

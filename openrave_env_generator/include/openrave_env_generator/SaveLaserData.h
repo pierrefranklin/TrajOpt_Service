@@ -28,6 +28,7 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
+#include <string>     
 
 namespace TOService {
 
@@ -51,7 +52,7 @@ namespace TOService {
 
         void getSensors(std::vector <OpenRAVE::SensorBasePtr> sensors);
 
-        int save(char tj_result);
+        int save(int tj_result);
 
     private:
         std::vector <OpenRAVE::SensorBasePtr> sensors;
