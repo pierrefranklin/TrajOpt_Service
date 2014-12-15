@@ -76,7 +76,7 @@ namespace TOService {
                 outputFile << distance(pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
                 
              }
-            outputFile << '@';
+            // outputFile << '@';
         }
         outputFile << '\n';
 

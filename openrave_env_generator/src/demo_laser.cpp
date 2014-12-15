@@ -22,38 +22,42 @@ int main(){
 
 	EGTable envGenerator(false,2);
 
-	char tj_result[256];
+	
 
-	std::vector <OpenRAVE::SensorBasePtr> sensors;
+	
 	TOService::SaveLaserData mdata;
 	std::string folder_path = "/home/peng/env_data/";
 	// std::string folder_path = ros::package::getPath("training_data_generator") + "/test_envs/";
 
 	for( int numEnv = 0; numEnv < 2000 ; numEnv++){
 
-			OpenRAVE::EnvironmentBasePtr env = OpenRAVE::RaveCreateEnvironment();
+		char tj_result[50];
 
-			std::stringstream envfilename;
-			envfilename << std::setfill('0') << std::setw(5) << currentIndex << "t.zae";
-			
-			env->Load(folder_path + envfilename.str());
-			env->Add(env->ReadRobotXMLFile("atlas_description/atlas_head_laser.xml"));
-			
-			std::stringstream resultfilename;
-			resultfilename << std::setfill('0') << std::setw(5) << currentIndex << "_result";
+		std::vector <OpenRAVE::SensorBasePtr> sensors;
 
-			std::ifstream filestream;
-			filestream.open(folder_path + resultfilename.str());
-			
-			if(!filestream.is_open()){
-				std::cout<<"Failed to open file '"<<resultfilename<<"'"<<std::endl;
-				exit(-1);
-			}
-			
-			filestream.getline(tj_result, 256);
+		OpenRAVE::EnvironmentBasePtr env = OpenRAVE::RaveCreateEnvironment();
 
-			filestream.close();
-			currentIndex++;
+		std::stringstream envfilename;
+		envfilename << std::setfill('0') << std::setw(5) << currentIndex << "t.zae";
+		
+		env->Load(folder_path + envfilename.str());
+		env->Add(env->ReadRobotXMLFile("atlas_description/atlas_head_laser.xml"));
+		
+		std::stringstream resultfilename;
+		resultfilename << std::setfill('0') << std::setw(5) << currentIndex << "_result";
+
+		std::ifstream filestream;
+		filestream.open(folder_path + resultfilename.str());
+		
+		if(!filestream.is_open()){
+			std::cout<<"Failed to open file '"<<resultfilename<<"'"<<std::endl;
+			exit(-1);
+		}
+		
+		filestream.getline(tj_result, 256);
+
+		filestream.close();
+		currentIndex++;
 		/* This is how to save sensor data, now only support a single laser sensor
 		 * In order to have the data store correctly, please change the user name in path "/home/peng/ScanedEnv.txt"
 		 * in file "SaveLaserData.cpp" .
@@ -66,7 +70,7 @@ int main(){
 		env->GetSensors(sensors);
 		mdata.getSensors(sensors);
 		mdata.saveToSVM(std::stoi(tj_result));
-		mdata.saveToANN(std::stoi(tj_result));
+		// mdata.saveToANN(std::stoi(tj_result));
 
 
 
