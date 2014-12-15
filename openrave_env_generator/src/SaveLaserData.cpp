@@ -32,11 +32,13 @@ namespace TOService {
         outputFile << tj_result << ' ';
         for (int kk = 0; kk < 100; ++kk) {
             sensors[0]->SimulationStep(0.1);
-            sensors[0]->GetSensorData(pdata);
-            for (int ii = 0; ii < (pdata->ranges.size() - 1); ++ii) {
-                outputFile << ++fIndex << ':' << distance(pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
-                // outputFile << ++fIndex << ':' << pdata->intensity[ii] << ' ';
-             }
+            if (kk >45 && kk <= 95)
+            {
+                sensors[0]->GetSensorData(pdata);
+                for (int ii = 0; ii < (pdata->ranges.size() - 1); ++ii) {
+                    outputFile << ++fIndex << ':' << distance(pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
+                 }
+            }
             
         }
 
@@ -64,18 +66,21 @@ namespace TOService {
         /* topology*/
         if (count == 0)
         {
-            outputFile << "topology: 4500 500 25" << '\n';
+            outputFile << "topology: 2250 500 25" << '\n';
         }
 
         /* inputs */
         outputFile << "in: ";
         for (int kk = 0; kk < 100; ++kk) {
             sensors[0]->SimulationStep(0.1);
-            sensors[0]->GetSensorData(pdata);
-            for (int ii = 0; ii < (pdata->ranges.size() - 1); ++ii) {
+            if (kk >45 | kk < 95)
+            {
+                sensors[0]->GetSensorData(pdata);
+                for (int ii = 0; ii < (pdata->ranges.size() - 1); ++ii) {
                 outputFile << distance(pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
-                
-             }
+                }
+            }
+            
             // outputFile << '@';
         }
         outputFile << '\n';

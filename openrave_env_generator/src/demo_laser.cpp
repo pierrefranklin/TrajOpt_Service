@@ -29,7 +29,7 @@ int main(){
 	std::string folder_path = "/home/peng/env_data/";
 	// std::string folder_path = ros::package::getPath("training_data_generator") + "/test_envs/";
 
-	for( int numEnv = 0; numEnv < 2000 ; numEnv++){
+	for( int numEnv = 0; numEnv < 500 ; numEnv++){
 
 		char tj_result[50];
 
@@ -69,24 +69,25 @@ int main(){
 
 		env->GetSensors(sensors);
 		mdata.getSensors(sensors);
-		mdata.saveToSVM(std::stoi(tj_result));
+		
+		/* Enable below to take records */
+		// mdata.saveToSVM(std::stoi(tj_result));
 		// mdata.saveToANN(std::stoi(tj_result));
 
+		// OpenRAVE::ViewerBasePtr viewer = OpenRAVE::RaveCreateViewer(env, "qtcoin");
+		// env->AddViewer(viewer);
 
+		// // std::cin.get();
+		// while(1){
+		// viewer->main();
+		// }
 
 		env->GetRobot("atlas")->Destroy();
 		env->Destroy();
 	}
 
-	// OpenRAVE::ViewerBasePtr viewer = OpenRAVE::RaveCreateViewer(env, "qtcoin");
-
-	// assert(viewer);
-
-	// env->AddViewer(viewer);
-
-	// while(1){
-	// 	viewer->main();
-	// }
+	
+	
 	std::cout << "Saving Finished\n";
 
 	return 0;
