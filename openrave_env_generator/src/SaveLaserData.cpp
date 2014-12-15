@@ -15,30 +15,25 @@ namespace TOService {
 
     void SaveLaserData::getSensors(std::vector <OpenRAVE::SensorBasePtr> sensors) {
         this->sensors = sensors;
+        sensors[0]->Configure(OpenRAVE::SensorBase::CC_PowerOn);
+        sensors[0]->Configure(OpenRAVE::SensorBase::CC_RenderDataOn);
     }
 
-    int SaveLaserData::save(int tj_result) {
+    int SaveLaserData::saveToSVM(int tj_result) {
 
         int static count = 0;
         int fIndex = 0;
-        ++count;
 
         boost::shared_ptr <OpenRAVE::SensorBase::LaserSensorData> pdata(new OpenRAVE::SensorBase::LaserSensorData);
 
-        sensors[0]->Configure(OpenRAVE::SensorBase::CC_PowerOn);
-        sensors[0]->Configure(OpenRAVE::SensorBase::CC_RenderDataOn);
-
-
-
-
         std::ofstream outputFile;
-        outputFile.open("/home/peng/ScanedEnv.txt", std::ios::in | std::ios::app);
+        outputFile.open("/home/peng/ScanedEnvSVM.txt", std::ios::in | std::ios::app);
         
         outputFile << tj_result << ' ';
         for (int kk = 0; kk < 100; ++kk) {
             sensors[0]->SimulationStep(0.1);
             sensors[0]->GetSensorData(pdata);
-            for (int ii = 0; ii < pdata->ranges.size(); ++ii) {
+            for (int ii = 0; ii < (pdata->ranges.size() - 1); ++ii) {
                 outputFile << ++fIndex << ':' << distance(pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
                 // outputFile << ++fIndex << ':' << pdata->intensity[ii] << ' ';
              }
@@ -52,7 +47,61 @@ namespace TOService {
 
         std::cout << "One Environment scaned and saved! \n";
 
-        return count;
+        return ++count;
+    }
+
+    int SaveLaserData::saveToANN(int tj_result) {
+
+        int static count = 0;
+        int fIndex = 0;
+        
+
+        boost::shared_ptr <OpenRAVE::SensorBase::LaserSensorData> pdata(new OpenRAVE::SensorBase::LaserSensorData);
+
+        std::ofstream outputFile;
+        outputFile.open("/home/peng/ScanedEnvAnn.txt", std::ios::in | std::ios::app);
+        
+        /* topology*/
+        if (count == 0)
+        {
+            outputFile << "topology: 4500 500 25" << '\n';
+        }
+
+        /* inputs */
+        outputFile << "in: ";
+        for (int kk = 0; kk < 100; ++kk) {
+            sensors[0]->SimulationStep(0.1);
+            sensors[0]->GetSensorData(pdata);
+            for (int ii = 0; ii < (pdata->ranges.size() - 1); ++ii) {
+                outputFile << distance(pdata->ranges[ii][0], pdata->ranges[ii][1], pdata->ranges[ii][2]) << ' ';
+                
+             }
+            outputFile << '@';
+        }
+        outputFile << '\n';
+
+        /* outputs */
+        outputFile << "out: ";
+        for (int ii = 0; ii < 25; ++ii)
+        {
+            if (ii == tj_result)
+            {
+                outputFile << 1.0 << ' ';
+            }
+            else
+            {
+                outputFile << 0.0 << ' ';
+            }
+        }
+        
+        outputFile << "\n";
+        outputFile.close();
+
+        std::cout << "Save Environment: " << count << " with Index: " << tj_result << '\n';
+
+        std::cout << "One Environment scaned and saved! \n";
+
+        return ++count;
     }
 }
 

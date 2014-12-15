@@ -52,7 +52,9 @@ namespace TOService {
 
         void getSensors(std::vector <OpenRAVE::SensorBasePtr> sensors);
 
-        int save(int tj_result);
+        int saveToSVM(int tj_result);
+
+        int saveToANN(int tj_result);
 
     private:
         std::vector <OpenRAVE::SensorBasePtr> sensors;

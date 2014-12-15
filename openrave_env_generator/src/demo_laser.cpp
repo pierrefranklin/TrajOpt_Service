@@ -65,7 +65,8 @@ int main(){
 
 		env->GetSensors(sensors);
 		mdata.getSensors(sensors);
-		mdata.save(std::stoi(tj_result));
+		mdata.saveToSVM(std::stoi(tj_result));
+		mdata.saveToANN(std::stoi(tj_result));
 
 
 
