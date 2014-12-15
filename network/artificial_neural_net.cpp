@@ -1,5 +1,7 @@
 // Author: David Miller
 
+#include "artificial_neural_net.h"
+
 #include <vector>
 #include <iostream>
 #include <cstdlib>
@@ -10,25 +12,7 @@
 
 using namespace std;
 
-// Silly class to read training data from a text file -- Replace This.
-// Replace class TrainingData with whatever you need to get input data into the
-// program, e.g., connect to a database, or take a stream of data from stdin, or
-// from a file specified by a command line argument, etc.
 
-class TrainingData
-{
-public:
-    TrainingData(const string filename);
-    bool isEof(void) { return m_trainingDataFile.eof(); }
-    void getTopology(vector<unsigned> &topology);
-
-    // Returns the number of input values read from the file:
-    unsigned getNextInputs(vector<double> &inputVals);
-    unsigned getTargetOutputs(vector<double> &targetOutputVals);
-
-private:
-    ifstream m_trainingDataFile;
-};
 
 void TrainingData::getTopology(vector<unsigned> &topology)
 {
@@ -97,41 +81,10 @@ unsigned TrainingData::getTargetOutputs(vector<double> &targetOutputVals)
 }
 
 
-struct Connection
-{
-    double weight;
-    double deltaWeight;
-};
 
 
-class Neuron;
-
-typedef vector<Neuron> Layer;
 
 // ****************** class Neuron ******************
-class Neuron
-{
-public:
-    Neuron(unsigned numOutputs, unsigned myIndex);
-    void setOutputVal(double val) { m_outputVal = val; }
-    double getOutputVal(void) const { return m_outputVal; }
-    void feedForward(const Layer &prevLayer);
-    void calcOutputGradients(double targetVal);
-    void calcHiddenGradients(const Layer &nextLayer);
-    void updateInputWeights(Layer &prevLayer);
-
-private:
-    static double eta;   // [0.0..1.0] overall net training rate
-    static double alpha; // [0.0..n] multiplier of last weight change (momentum)
-    static double transferFunction(double x);
-    static double transferFunctionDerivative(double x);
-    static double randomWeight(void) { return rand() / double(RAND_MAX); }
-    double sumDOW(const Layer &nextLayer) const;
-    double m_outputVal;
-    vector<Connection> m_outputWeights;
-    unsigned m_myIndex;
-    double m_gradient;
-};
 
 double Neuron::eta = 0.15;    // overall net learning rate, [0.0..1.0]
 double Neuron::alpha = 0.5;   // momentum, multiplier of last deltaWeight, [0.0..1.0]
@@ -204,7 +157,6 @@ void Neuron::feedForward(const Layer &prevLayer)
 
     // Sum the previous layer's outputs (which are our inputs)
     // Include the bias node from the previous layer.
-
     for (unsigned n = 0; n < prevLayer.size(); ++n) {
         sum += prevLayer[n].getOutputVal() *
                 prevLayer[n].m_outputWeights[m_myIndex].weight;
@@ -225,21 +177,7 @@ Neuron::Neuron(unsigned numOutputs, unsigned myIndex)
 
 
 // ****************** class Net ******************
-class Net
-{
-public:
-    Net(const vector<unsigned> &topology);
-    void feedForward(const vector<double> &inputVals);
-    void backProp(const vector<double> &targetVals);
-    void getResults(vector<double> &resultVals) const;
-    double getRecentAverageError(void) const { return m_recentAverageError; }
 
-private:
-    vector<Layer> m_layers; // m_layers[layerNum][neuronNum]
-    double m_error;
-    double m_recentAverageError;
-    static double m_recentAverageSmoothingFactor;
-};
 
 
 double Net::m_recentAverageSmoothingFactor = 100.0; // Number of training samples to average over
@@ -353,45 +291,59 @@ void showVectorVals(string label, vector<double> &v)
 }
 
 
-int main()
-{
-    TrainingData trainData("/tmp/trainingData.txt");
+Net createNet(vector<unsigned> topology, vector<vector<double>> inputs, vector<vector<double>> targets){
+	Net myNet(topology);
 
-    // e.g., { 3, 2, 1 }
-    vector<unsigned> topology;
-    trainData.getTopology(topology);
+	if (inputs.size() != targets.size()){
+		std::cerr<<"inputs size does not match outputs size"<<std::endl;
+		cerr<<" inputs.size() : "<<inputs.size()<<", outputs.size() : "<<targets.size()<<endl;
+		return myNet;
+	}
 
-    Net myNet(topology);
+	for(int trainingPass = 0; trainingPass < 1000; trainingPass++){
 
-    vector<double> inputVals, targetVals, resultVals;
-    int trainingPass = 0;
+        cout << endl << "Pass " << trainingPass<<endl;
 
-    while (!trainData.isEof()) {
-        ++trainingPass;
-        cout << endl << "Pass " << trainingPass;
+        for(int index = 0; index < inputs.size(); index++){
 
-        // Get new input data and feed it forward:
-        if (trainData.getNextInputs(inputVals) != topology[0]) {
-            break;
+        	std::vector<double> & currentInput = inputs[index];
+        	std::vector<double> & currentTarget = targets[index];
+
+        	if (currentInput.size() != topology[0]){
+        		std::cerr<< "inputs for index " << index <<" does not match topology"<<std::endl;
+        		continue;
+        	}
+        	if (currentTarget.size() != topology.back()){
+				std::cerr<< "targets for index " << index <<" does not match topology"<<std::endl;
+				continue;
+			}
+
+        	myNet.feedForward(currentInput);
+
+        	myNet.backProp(currentTarget);
+
+            cout << "Net recent average error: " << myNet.getRecentAverageError() << endl;
+
         }
-        showVectorVals(": Inputs:", inputVals);
-        myNet.feedForward(inputVals);
+	}
 
-        // Collect the net's actual output results:
-        myNet.getResults(resultVals);
-        showVectorVals("Outputs:", resultVals);
+	return myNet;
+}
 
-        // Train the net what the outputs should have been:
-        trainData.getTargetOutputs(targetVals);
-        showVectorVals("Targets:", targetVals);
-        assert(targetVals.size() == topology.back());
+Net loadNet(string filename){
+	vector<unsigned> emptyTopology;
+	Net myNet(emptyTopology);
+	std::ifstream ifs(filename);
+	boost::archive::text_iarchive ia(ifs);
 
-        myNet.backProp(targetVals);
+	ia>>myNet;
 
-        // Report how well the training is working, average over recent samples:
-        cout << "Net recent average error: "
-                << myNet.getRecentAverageError() << endl;
-    }
+	return myNet;
 
-    cout << endl << "Done" << endl;
+}
+
+void saveNet(const Net &net, string filename){
+	std::ofstream ofs(filename);
+	boost::archive::text_oarchive oa(ofs);
+	oa << net;
 }
