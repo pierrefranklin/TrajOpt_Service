@@ -1,0 +1,7 @@
+set(_CATKIN_CURRENT_PACKAGE "octomap_server")
+set(octomap_server_MAINTAINER "Armin Hornung <hornunga@informatik.uni-freiburg.de>")
+set(octomap_server_DEPRECATED "")
+set(octomap_server_VERSION "0.5.3")
+set(octomap_server_BUILD_DEPENDS "roscpp" "visualization_msgs" "sensor_msgs" "pcl_ros" "pcl_conversions" "nav_msgs" "std_msgs" "std_srvs" "octomap" "octomap_msgs" "octomap_ros" "dynamic_reconfigure" "nodelet" "libpcl-all-dev")
+set(octomap_server_RUN_DEPENDS "roscpp" "visualization_msgs" "sensor_msgs" "pcl_ros" "pcl_conversions" "nav_msgs" "std_msgs" "std_srvs" "octomap" "octomap_msgs" "octomap_ros" "dynamic_reconfigure" "nodelet" "libpcl-all")
+set(octomap_server_BUILDTOOL_DEPENDS "catkin")

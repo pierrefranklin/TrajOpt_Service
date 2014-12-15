@@ -32,7 +32,7 @@ public:
 	DatabaseTrajectorySearch(boost::shared_ptr<BezierAtlasIKDB> database_);
 	virtual ~DatabaseTrajectorySearch();
 
-	int findBestIndex(OpenRAVE::EnvironmentBaseConstPtr env, Eigen::Vector3d end);
+	int findBestIndex(OpenRAVE::EnvironmentBasePtr env, Eigen::Vector3d end);
 
 
 protected:

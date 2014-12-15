@@ -53,7 +53,7 @@ int main(int argc, char *argv[]){
 		index = std::stoi(argv[1]);
 	}
 
-	auto trajectory = database.getTrajectory(index,start, {0.5,-0.5,1});
+	auto trajectory = database.getTrajectory(index,start, {.75,-0.5,0.7});
 	std::cout << trajectory <<std::endl;
 
 	OpenRAVE::RaveInitialize();

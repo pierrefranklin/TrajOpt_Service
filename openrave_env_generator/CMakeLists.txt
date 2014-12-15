@@ -85,7 +85,7 @@ find_package(Boost REQUIRED COMPONENTS system
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES openrave_env_generator
+  LIBRARIES openrave_env_generator
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )

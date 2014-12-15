@@ -120,6 +120,19 @@ set_target_properties(trainer PROPERTIES COMPILE_FLAGS "-std=c++0x")
 target_link_libraries(testDTS ${OpenRAVE_BOTH_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} trainer)
 set_target_properties(testDTS PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
+ add_executable(BuildDatabase 
+ 	src/BuildDatabase.cpp
+ )
+target_link_libraries(BuildDatabase ${OpenRAVE_BOTH_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} trainer)
+set_target_properties(BuildDatabase PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
+ add_executable(BuildDatabase1 
+ 	src/BuildDatabase1.cpp
+ )
+target_link_libraries(BuildDatabase1 ${OpenRAVE_BOTH_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} trainer)
+set_target_properties(BuildDatabase1 PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
+
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(training_data_generator_node training_data_generator_generate_messages_cpp)

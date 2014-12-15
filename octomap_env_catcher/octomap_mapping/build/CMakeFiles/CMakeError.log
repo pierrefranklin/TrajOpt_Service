@@ -1,0 +1,53 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1834377838/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1834377838.dir/build.make CMakeFiles/cmTryCompileExec1834377838.dir/build
+make[1]: Entering directory `/home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1834377838.dir/CheckSymbolExists.c.o
+/usr/bin/gcc    -o CMakeFiles/cmTryCompileExec1834377838.dir/CheckSymbolExists.c.o   -c /home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTryCompileExec1834377838
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1834377838.dir/link.txt --verbose=1
+/usr/bin/gcc         CMakeFiles/cmTryCompileExec1834377838.dir/CheckSymbolExists.c.o  -o cmTryCompileExec1834377838 -rdynamic 
+CMakeFiles/cmTryCompileExec1834377838.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: ld returned 1 exit status
+make[1]: *** [cmTryCompileExec1834377838] Error 1
+make[1]: Leaving directory `/home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec1834377838/fast] Error 2
+
+File /home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec2081884477/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec2081884477.dir/build.make CMakeFiles/cmTryCompileExec2081884477.dir/build
+make[1]: Entering directory `/home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2081884477.dir/CheckFunctionExists.c.o
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec2081884477.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec2081884477
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2081884477.dir/link.txt --verbose=1
+/usr/bin/gcc     -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec2081884477.dir/CheckFunctionExists.c.o  -o cmTryCompileExec2081884477 -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: ld returned 1 exit status
+make[1]: *** [cmTryCompileExec2081884477] Error 1
+make[1]: Leaving directory `/home/peng/CS543_workspace/src/TrajOpt_Service/octomap_env_catcher/octomap_mapping/build/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec2081884477/fast] Error 2
+
+
